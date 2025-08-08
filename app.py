@@ -1,10 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for
 import pymysql as sql
 import os
-from flask_wtf.csrf import CSRFProtect
-
-
-csrf = CSRFProtect(app)
 
 
 app = Flask(__name__)
@@ -91,3 +87,4 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', 10000))  
 
     app.run(host='0.0.0.0', port=port, debug=True)
+
