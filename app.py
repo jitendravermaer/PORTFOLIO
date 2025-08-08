@@ -1,11 +1,19 @@
 from flask import Flask, render_template, request, redirect, url_for
 import pymysql as sql
+import os
+from flask_wtf.csrf import CSRFProtect
+
+
+csrf = CSRFProtect(app)
 
 
 app = Flask(__name__)
 
 def db_connect():
-    conn = sql.connect(host='localhost', port=3306, user='root', password='', database='grass')
+    conn = sql.connect(host=os.environ.get("DB_HOST"),
+                       user=os.environ.get("DB_USER"),
+                       password=os.environ.get("DB_PASSWORD"),
+                       database=os.environ.get("DB_NAME"))
     cur = conn.cursor()
     return conn, cur
 
@@ -66,8 +74,8 @@ def after_submit():
             msg = 'email already exists...'
             return render_template('contact.html', data = msg)
         else:
-            cmd = f"insert into contact values('{name}', '{email}', {phone}, '{message}')"
-            cursor.execute(cmd)
+            cmd = "INSERT INTO contact (name, email, phone, message) VALUES (%s, %s, %s, %s)"
+            cursor.execute(cmd, (name, email, phone, message))
             db.commit()
             db.close()
             msg = 'Details are sent successfully... :)'
@@ -81,4 +89,5 @@ def resume():
 if __name__ == '__main__':
     import os
     port = int(os.environ.get('PORT', 10000))  
+
     app.run(host='0.0.0.0', port=port, debug=True)
